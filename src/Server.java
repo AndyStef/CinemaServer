@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.sql.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -18,6 +19,8 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import Model.Cinema;
+import Model.Movie;
+import Model.Session;
 
 public class Server extends JFrame {
 	
@@ -51,6 +54,8 @@ public class Server extends JFrame {
 			serverSocket = new ServerSocket(3111);
 			connectToDatabase();
 			getCinemas();
+			getMovies();
+			getSessions();
 			
 			while(true) {
 				try {
@@ -139,13 +144,14 @@ public class Server extends JFrame {
 	
 	//SQL Methods(QUERIES)
 	private void getCinemas() throws SQLException {
-		System.out.println("Creating statement...");
+		  ArrayList<Cinema> cinemaList = new ArrayList<Cinema>();
+		
 	      stmt = databaseConnection.createStatement();
 	      String sql;
 	      sql = "SELECT * FROM Cinema";
 	      ResultSet resultSet = stmt.executeQuery(sql);
 
-	      //STEP 5: Extract data from result set
+	      //Extract data from result set
 	      while(resultSet.next()){
 	         //Retrieve by column name
 	         int id  = resultSet.getInt("CinemaId");
@@ -158,6 +164,68 @@ public class Server extends JFrame {
 	         System.out.print(", Name: " + name);
 	         System.out.print(", Address: " + address);
 	         System.out.print(", HallNumber: " + hallNumber + "\n");
+	         cinemaList.add(new Cinema(id, name, address, hallNumber));
 	      }
+	      resultSet.close();
+	}
+	
+	private void getMovies() throws SQLException {
+		  ArrayList<Movie> movieList = new ArrayList<Movie>();
+		
+	      stmt = databaseConnection.createStatement();
+	      String sql;
+	      sql = "SELECT * FROM Movie";
+	      ResultSet resultSet = stmt.executeQuery(sql);
+
+	      //Extract data from result set
+	      while(resultSet.next()){
+	         //Retrieve by column name
+	         int id  = resultSet.getInt("MovieId");
+	         String name = resultSet.getString("Name");
+	         String genre = resultSet.getString("Genre");
+	         String producer = resultSet.getString("Producer");
+	         int duration = resultSet.getInt("Duration");
+	         boolean isCurrentlyShowed = resultSet.getBoolean("IsCurrenlyShowed");
+	         
+	         //Display values
+	         System.out.print("ID: " + id);
+	         System.out.print(", Name: " + name);
+	         System.out.print(", Genre: " + genre);
+	         System.out.print(", Producer: " + producer );
+	         System.out.print(", Duration: " + duration);
+	         System.out.print(", IsCurrentlyShowed: " + isCurrentlyShowed + "\n");
+	         movieList.add(new Movie(id, name, genre, duration, producer, true));
+	      }
+	      resultSet.close();
+	}
+	
+	private void getSessions() throws SQLException {
+		  ArrayList<Session> sessionList = new ArrayList<Session>();
+		
+	      stmt = databaseConnection.createStatement();
+	      String sql;
+	      sql = "SELECT * FROM Session";
+	      ResultSet resultSet = stmt.executeQuery(sql);
+
+	      //Extract data from result set
+	      while(resultSet.next()){
+	         //Retrieve by column name
+	         int id  = resultSet.getInt("SessionId");
+	         int cost = resultSet.getInt("Cost");
+	         String format = resultSet.getString("Format");
+	         int cinemaId = resultSet.getInt("CinemaId");
+	         int movieId = resultSet.getInt("MovieId");
+	         Date time = resultSet.getDate("Time");
+	         
+	         //Display values
+	         System.out.print("ID: " + id);
+	         System.out.print(", Cost: " + cost);
+	         System.out.print(", Format: " + format);
+	         System.out.print(", CinemaId: " + cinemaId );
+	         System.out.print(", MovieId: " + movieId);
+	         System.out.print(", Time: " + time + "\n");
+	         sessionList.add(new Session(id, cost, format, movieId, cinemaId, time));
+	      }
+	      resultSet.close();
 	}
 }

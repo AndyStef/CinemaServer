@@ -9,6 +9,7 @@ public class Movie implements Serializable {
 	public int duration;
 	public String producer;
 	public boolean isCurrentlyShown;
+	//public bit isCurrentlyShown;
 	
 	public Movie(int objectId, String name, String genre, int duration, String producer, boolean isCurrentlyShown) {
 		this.objectId = objectId;
