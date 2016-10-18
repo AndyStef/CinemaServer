@@ -21,6 +21,7 @@ import Model.Cinema;
 import Model.ComparisonType;
 import Model.Movie;
 import Model.Query;
+import Model.Responce;
 import Model.Session;
 
 public class Server extends JFrame {
@@ -41,7 +42,9 @@ public class Server extends JFrame {
 	Statement stmt = null;
 	
 	private Query incomingQuery = null;
+	private Responce outcomeResponce;
 	private boolean isFree = true;
+	private boolean isActive;
 	
 	//constructor
 	public Server() {
@@ -58,7 +61,7 @@ public class Server extends JFrame {
 			serverSocket = new ServerSocket(3111);
 			connectToDatabase();
 			getMovies();
-	
+
 			while(true) {
 				try {
 					waitForConnection();
@@ -115,23 +118,25 @@ public class Server extends JFrame {
 			output.flush();
 			input = new ObjectInputStream(connectionSocket.getInputStream());
 			showMessage("\n Streams are setup \n");
+			isActive = true;
 		}
 		
 	//wait for incoming query and execute it 
-	private void waitForQuery() {
-		if (isFree) {
+	private void waitForQuery() {		
+		do {
 			try {
 				incomingQuery = (Query )input.readObject();
-				executeQuery(incomingQuery);
+				executeQuery(incomingQuery);	
 			} catch (ClassNotFoundException | IOException | SQLException e) {
 				e.printStackTrace();
 			} finally {
 				isFree = true;
 			} 
-		}
+			
+		} while(isActive);
 	}
 	
-	private void executeQuery(Query query) throws SQLException {
+	private void executeQuery(Query query) throws SQLException, IOException {
 		switch(query.type) {
 		case add: {
 			switch(query.objectType) {
@@ -213,6 +218,7 @@ public class Server extends JFrame {
 			e.printStackTrace();
 		}
 		
+		isActive = false;
 	}
 	
 	//show some info 
@@ -227,7 +233,7 @@ public class Server extends JFrame {
 	}
 	
 	//SQL Methods(QUERIES)
-	private void getCinemas() throws SQLException {
+	private void getCinemas() throws SQLException, IOException {
 		  ArrayList<Cinema> cinemaList = new ArrayList<Cinema>();
 		
 	      stmt = databaseConnection.createStatement();
@@ -251,6 +257,8 @@ public class Server extends JFrame {
 	         cinemaList.add(new Cinema(id, name, address, hallNumber));
 	      }
 	      resultSet.close();
+	      output.writeObject(outcomeResponce);
+	      output.flush();
 	}
 	
 	private void getMovies() throws SQLException {
