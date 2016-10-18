@@ -3,11 +3,14 @@ package Model;
 import java.io.Serializable;
 
 public class Query implements Serializable {
-	QueryType type;
-	ObjectType objectType;
+	public QueryType type;
+	public ObjectType objectType;
 	public Cinema cinema;
 	public Movie movie;
 	public Session session;
+	public String key;
+	public String comparisonValue;
+	public ComparisonType comparisonType;
 
 	public Query(QueryType type, ObjectType objectType) {
 		this.type = type;	

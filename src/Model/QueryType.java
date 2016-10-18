@@ -1,5 +1,5 @@
 package Model;
 
 public enum QueryType {
-	add, delete, find
+	add, delete, find, findWithFilter
 }

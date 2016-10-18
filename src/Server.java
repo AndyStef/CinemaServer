@@ -1,4 +1,3 @@
-import java.awt.List;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -41,6 +40,9 @@ public class Server extends JFrame {
 	Connection databaseConnection = null;
 	Statement stmt = null;
 	
+	private Query incomingQuery = null;
+	private boolean isFree = true;
+	
 	//constructor
 	public Server() {
 		super("Server");	
@@ -60,7 +62,8 @@ public class Server extends JFrame {
 			while(true) {
 				try {
 					waitForConnection();
-					setupStreams();
+					setupStreams();					
+					waitForQuery();
 				} catch (EOFException eofexception) {
 					showMessage("\n Server ended the connection");
 				} finally {
@@ -82,7 +85,6 @@ public class Server extends JFrame {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
 	      // Open a connection
 	      System.out.println("Connecting to database...");
 	      try {
@@ -108,13 +110,95 @@ public class Server extends JFrame {
 	}
 	
 	//get stream to send and receive data
-		private void setupStreams() throws IOException{
+	private void setupStreams() throws IOException{
 			output = new ObjectOutputStream(connectionSocket.getOutputStream());
 			output.flush();
 			input = new ObjectInputStream(connectionSocket.getInputStream());
 			showMessage("\n Streams are setup \n");
 		}
 		
+	//wait for incoming query and execute it 
+	private void waitForQuery() {
+		if (isFree) {
+			try {
+				incomingQuery = (Query )input.readObject();
+				executeQuery(incomingQuery);
+			} catch (ClassNotFoundException | IOException | SQLException e) {
+				e.printStackTrace();
+			} finally {
+				isFree = true;
+			} 
+		}
+	}
+	
+	private void executeQuery(Query query) throws SQLException {
+		switch(query.type) {
+		case add: {
+			switch(query.objectType) {
+			case cinema:
+				deleteCinema(query.cinema);
+				break;
+			case movie:
+				deleteMovie(query.movie);
+				break;
+			case session:
+				deleteSession(query.session);
+				break;	
+			}
+			
+			break;
+		} 
+		
+		case delete: {
+			switch(query.objectType) {
+			case cinema:
+				addCinema(query.cinema);
+				break;
+			case movie:
+				addMovie(query.movie);
+				break;
+			case session:
+				addSession(query.session);
+				break;	
+			}
+			
+			break;
+		}
+		
+		case find: {
+			switch(query.objectType) {
+			case cinema:
+				getCinemas();
+				break;
+			case movie:
+				getMovies();
+				break;
+			case session:
+				getSessions();
+				break;	
+			}
+			
+			break;
+		}
+		
+		case findWithFilter: {
+			switch(query.objectType) {
+			case cinema:
+				getCinemasWithFilter(query.key, query.comparisonValue, query.comparisonType);
+				break;
+			case movie:
+				getMoviesWithFilter(query.key, query.comparisonValue, query.comparisonType);
+				break;
+			case session:
+				getSessionsWithFilter(query.key, query.comparisonValue, query.comparisonType);
+				break;	
+			}
+			
+			break;
+			}
+		}
+	}
+	
 	//closing all streams and sockets as well
 	private void closeAll() {
 		showMessage(" \n Closing everything...");
@@ -296,6 +380,7 @@ public class Server extends JFrame {
 	    stmt.execute(sql);	
 	}
 	
+	//Specified selects
 	private void getCinemasWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException {
 		  ArrayList<Cinema> cinemaList = new ArrayList<Cinema>();
 		
