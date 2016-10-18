@@ -19,7 +19,9 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import Model.Cinema;
+import Model.ComparisonType;
 import Model.Movie;
+import Model.Query;
 import Model.Session;
 
 public class Server extends JFrame {
@@ -53,10 +55,11 @@ public class Server extends JFrame {
 		try {
 			serverSocket = new ServerSocket(3111);
 			connectToDatabase();
-			getCinemas();
+			//getCinemas();
+			getCinemasWithFilter("HallNumber", "6", ComparisonType.greater);
 			getMovies();
 			getSessions();
-			
+	
 			while(true) {
 				try {
 					waitForConnection();
@@ -200,6 +203,7 @@ public class Server extends JFrame {
 	}
 	
 	private void getSessions() throws SQLException {
+
 		  ArrayList<Session> sessionList = new ArrayList<Session>();
 		
 	      stmt = databaseConnection.createStatement();
@@ -227,5 +231,99 @@ public class Server extends JFrame {
 	         sessionList.add(new Session(id, cost, format, movieId, cinemaId, time));
 	      }
 	      resultSet.close();
+	}
+	
+	//Methods for addition my entities
+	private void addCinema(Cinema cinema) throws SQLException {
+		stmt = databaseConnection.createStatement();
+	    String sql;
+	    sql = "INSERT INTO Cinema(CinemaId, `Name`, Address, HallNumber) VALUES (";
+	    sql += cinema.objectId + ",'";
+	    sql += cinema.name + "','";
+	    sql += cinema.address + "',";
+	    sql += cinema.hallNumber + ");";
+	    
+	    stmt.execute(sql);
+	}
+	
+	private void addMovie(Movie movie) throws SQLException {
+		stmt = databaseConnection.createStatement();
+	    String sql;
+	    sql = "INSERT INTO movie (MovieId, `Name`, Genre, Duration, Producer, IsCurrenlyShowed) VALUES (";
+	    sql += movie.objectId + ",'";
+	    sql += movie.name + "','";
+	    sql += movie.genre + "',";
+	    sql += movie.duration + ",'";
+	    sql += movie.producer + "',";
+	    sql += movie.isCurrentlyShown + ");";
+	 
+	    stmt.execute(sql);	  
+	}
+	
+	private void addSession(Session session) throws SQLException {
+		stmt = databaseConnection.createStatement();
+	    String sql;
+	    sql = "INSERT INTO cinemanetwork.`session` (Cost, Format, CinemaId, SessionId, `Time`, MovieId) VALUES (";
+	    sql += session.cost + ",'";
+	    sql += session.format + "',";
+	    sql += session.cinemaId + ",";
+	    sql += session.objectId + ",'";
+	    sql += session.date + "',";
+	    sql += session.movieId + ");";
+
+	    stmt.execute(sql);	
+	}
+	
+	//deleting objects
+	private void deleteCinema(Cinema cinema) throws SQLException {
+		stmt = databaseConnection.createStatement();
+	    String sql;
+	    sql = "DELETE FROM cinemanetwork.cinema WHERE CinemaId = ";
+	    sql += cinema.objectId + ";";
+	    stmt.execute(sql);	
+	}
+	
+	private void deleteMovie(Movie movie) throws SQLException {
+		stmt = databaseConnection.createStatement();
+	    String sql;
+	    sql = "DELETE FROM cinemanetwork.movie WHERE MovieId = ";
+	    sql += movie.objectId + ";";
+	    stmt.execute(sql);	
+	}
+	
+	private void deleteSession(Session session) throws SQLException {
+		stmt = databaseConnection.createStatement();
+	    String sql;
+	    sql = "DELETE FROM cinemanetwork.`session` WHERE SessionId = ";
+	    sql += session.objectId + ";";
+	    stmt.execute(sql);	
+	}
+	
+	private void getCinemasWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException {
+		ArrayList<Cinema> cinemaList = new ArrayList<Cinema>();
+		
+	      stmt = databaseConnection.createStatement();
+	      String sql;
+	      sql = "SELECT * FROM Cinema ";
+	      sql += Query.whereKey(key, comparisonValue, type);
+	      System.out.print(sql);
+	      ResultSet resultSet = stmt.executeQuery(sql);
+
+	      //Extract data from result set
+	      while(resultSet.next()){
+	         //Retrieve by column name
+	         int id  = resultSet.getInt("CinemaId");
+	         String name = resultSet.getString("Name");
+	         String address = resultSet.getString("Address");
+	         int hallNumber = resultSet.getInt("HallNumber");
+	         
+	         //Display values
+	         System.out.print("ID: " + id);
+	         System.out.print(", Name: " + name);
+	         System.out.print(", Address: " + address);
+	         System.out.print(", HallNumber: " + hallNumber + "\n");
+	         cinemaList.add(new Cinema(id, name, address, hallNumber));
+	      }
+	      resultSet.close();	
 	}
 }
