@@ -158,7 +158,6 @@ public class Server extends JFrame {
 	         System.out.print(", Name: " + name);
 	         System.out.print(", Address: " + address);
 	         System.out.print(", HallNumber: " + hallNumber + "\n");
-	         
 	      }
 	}
 }
