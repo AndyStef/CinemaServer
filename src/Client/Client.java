@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -20,6 +21,7 @@ import Model.ObjectType;
 import Model.Query;
 import Model.QueryType;
 import Model.Responce;
+import Model.Session;
 
 public class Client extends JFrame {
 	//Variables
@@ -32,6 +34,14 @@ public class Client extends JFrame {
 	private Query outcomeQuery;
 	private boolean isActive;
 	private Responce incomingResponce;
+	
+	//DataSource
+	private List<Cinema> cinemas;
+	private List<Movie> movies;
+	private List<Session> sessions;
+	
+	//UI elements 
+	
 	
 	//constructor
 	public Client(String host) {
@@ -73,15 +83,7 @@ public class Client extends JFrame {
 			isActive = true;
 		}
 		
-		private void whileActive() throws IOException {
-			//sendRequest(new Query(QueryType.find, ObjectType.cinema));
-			
-			//Query addMovieRequest = new Query(QueryType.add, ObjectType.movie);
-			//addMovieRequest.movie = new Movie(7, "Hateful seven", "Action", 100, "Tarantino", false);
-			//sendRequest(addMovieRequest);
-			Query getCinemas = new Query(QueryType.find, ObjectType.cinema);
-			sendRequest(getCinemas);
-			
+		private void whileActive() throws IOException {			
 			do {
 				try {
 					incomingResponce = (Responce ) input.readObject();
@@ -93,12 +95,34 @@ public class Client extends JFrame {
 			} while (isActive);
 		}
 		
+		//what i have to do with responce
 		private void handleResponce(Responce responce) {
 			System.out.print("Success");
 			showMessage(responce.statusString);
 			List<Cinema> myList = responce.cinemaArray;
 			for (Cinema cinema : myList) {
 				showMessage(Integer.toString(cinema.hallNumber));
+			}
+			
+			switch (responce.responceType) {
+			case status:
+				showMessage(responce.statusString);
+				break;
+			case sendArray:
+				switch (responce.objectType) {
+				case cinema:
+					cinemas = new ArrayList();
+					cinemas = responce.cinemaArray;
+					break;
+				case movie:
+					movies = new ArrayList();
+					movies = responce.movieArray;
+					break;
+				case session:
+					sessions = new ArrayList();
+					sessions = responce.sessionArray;
+					break;	
+				}
 			}
 		}
 		

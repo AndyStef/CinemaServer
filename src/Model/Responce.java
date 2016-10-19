@@ -8,8 +8,8 @@ public class Responce implements Serializable {
 	public List<Movie> movieArray;
 	public List<Session> sessionArray;
 	public String statusString; 
-	ResponceType responceType;
-	ObjectType objectType;
+	public ResponceType responceType;
+	public ObjectType objectType;
 	
 	public Responce(ResponceType responceType, ObjectType objectType){
 		this.responceType = responceType;
