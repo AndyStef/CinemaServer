@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.sql.Date;
 
 import javax.swing.JFrame;
@@ -20,8 +21,11 @@ import javax.swing.SwingUtilities;
 import Model.Cinema;
 import Model.ComparisonType;
 import Model.Movie;
+import Model.ObjectType;
 import Model.Query;
+import Model.QueryType;
 import Model.Responce;
+import Model.ResponceType;
 import Model.Session;
 
 public class Server extends JFrame {
@@ -126,6 +130,7 @@ public class Server extends JFrame {
 		do {
 			try {
 				incomingQuery = (Query )input.readObject();
+				showMessage(incomingQuery);
 				executeQuery(incomingQuery);	
 			} catch (ClassNotFoundException | IOException | SQLException e) {
 				e.printStackTrace();
@@ -136,9 +141,16 @@ public class Server extends JFrame {
 		} while(isActive);
 	}
 	
+	private void showMessage(Query incomingQuery) {
+		QueryType type = incomingQuery.type;
+		ObjectType objectType = incomingQuery.objectType;
+		
+		showMessage(objectType.toString() + " " + type.toString());
+	}
+
 	private void executeQuery(Query query) throws SQLException, IOException {
 		switch(query.type) {
-		case add: {
+		case delete: {
 			switch(query.objectType) {
 			case cinema:
 				deleteCinema(query.cinema);
@@ -154,7 +166,7 @@ public class Server extends JFrame {
 			break;
 		} 
 		
-		case delete: {
+		case add: {
 			switch(query.objectType) {
 			case cinema:
 				addCinema(query.cinema);
@@ -234,7 +246,7 @@ public class Server extends JFrame {
 	
 	//SQL Methods(QUERIES)
 	private void getCinemas() throws SQLException, IOException {
-		  ArrayList<Cinema> cinemaList = new ArrayList<Cinema>();
+		  List<Cinema> cinemaList = new ArrayList<>();
 		
 	      stmt = databaseConnection.createStatement();
 	      String sql;
@@ -248,21 +260,20 @@ public class Server extends JFrame {
 	         String name = resultSet.getString("Name");
 	         String address = resultSet.getString("Address");
 	         int hallNumber = resultSet.getInt("HallNumber");
-	         
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Name: " + name);
-	         System.out.print(", Address: " + address);
-	         System.out.print(", HallNumber: " + hallNumber + "\n");
+
 	         cinemaList.add(new Cinema(id, name, address, hallNumber));
 	      }
 	      resultSet.close();
-	      output.writeObject(outcomeResponce);
 	      output.flush();
+	      
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.cinema);
+		  responce.statusString = "Cinemas was successful retrieved";
+		  responce.cinemaArray = cinemaList;
+		  output.writeObject(responce);
 	}
 	
-	private void getMovies() throws SQLException {
-		  ArrayList<Movie> movieList = new ArrayList<Movie>();
+	private void getMovies() throws SQLException, IOException {
+		  List<Movie> movieList = new ArrayList<Movie>();
 		
 	      stmt = databaseConnection.createStatement();
 	      String sql;
@@ -289,11 +300,17 @@ public class Server extends JFrame {
 	         movieList.add(new Movie(id, name, genre, duration, producer, true));
 	      }
 	      resultSet.close();
+	      output.flush();
+	      
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.cinema);
+		  responce.statusString = "Cinemas was successful retrieved";
+		  responce.movieArray = movieList;
+		  output.writeObject(responce);
 	}
 	
-	private void getSessions() throws SQLException {
+	private void getSessions() throws SQLException, IOException {
 
-		  ArrayList<Session> sessionList = new ArrayList<Session>();
+		  List<Session> sessionList = new ArrayList<Session>();
 		
 	      stmt = databaseConnection.createStatement();
 	      String sql;
@@ -320,10 +337,16 @@ public class Server extends JFrame {
 	         sessionList.add(new Session(id, cost, format, movieId, cinemaId, time));
 	      }
 	      resultSet.close();
+	      output.flush();
+	      
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.cinema);
+		  responce.statusString = "Cinemas was successful retrieved";
+		  responce.sessionArray = sessionList;
+		  output.writeObject(responce);
 	}
 	
 	//Methods for addition my entities
-	private void addCinema(Cinema cinema) throws SQLException {
+	private void addCinema(Cinema cinema) throws SQLException, IOException {
 		stmt = databaseConnection.createStatement();
 	    String sql;
 	    sql = "INSERT INTO Cinema(CinemaId, `Name`, Address, HallNumber) VALUES (";
@@ -333,9 +356,13 @@ public class Server extends JFrame {
 	    sql += cinema.hallNumber + ");";
 	    
 	    stmt.execute(sql);
+	    
+	    Responce responce = new Responce(ResponceType.status, ObjectType.cinema);
+	    responce.statusString = "Cinema addition was successful";
+	    output.writeObject(responce);
 	}
 	
-	private void addMovie(Movie movie) throws SQLException {
+	private void addMovie(Movie movie) throws SQLException, IOException {
 		stmt = databaseConnection.createStatement();
 	    String sql;
 	    sql = "INSERT INTO movie (MovieId, `Name`, Genre, Duration, Producer, IsCurrenlyShowed) VALUES (";
@@ -347,9 +374,13 @@ public class Server extends JFrame {
 	    sql += movie.isCurrentlyShown + ");";
 	 
 	    stmt.execute(sql);	  
+	    
+	    Responce responce = new Responce(ResponceType.status, ObjectType.movie);
+	    responce.statusString = "Movie addition was successful";
+	    output.writeObject(responce);
 	}
 	
-	private void addSession(Session session) throws SQLException {
+	private void addSession(Session session) throws SQLException, IOException {
 		stmt = databaseConnection.createStatement();
 	    String sql;
 	    sql = "INSERT INTO cinemanetwork.`session` (Cost, Format, CinemaId, SessionId, `Time`, MovieId) VALUES (";
@@ -361,6 +392,10 @@ public class Server extends JFrame {
 	    sql += session.movieId + ");";
 
 	    stmt.execute(sql);	
+	    
+	    Responce responce = new Responce(ResponceType.status, ObjectType.session);
+	    responce.statusString = "Session addition was successful";
+	    output.writeObject(responce);
 	}
 	
 	//deleting objects

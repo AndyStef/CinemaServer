@@ -7,12 +7,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import Model.Cinema;
+import Model.Movie;
 import Model.ObjectType;
 import Model.Query;
 import Model.QueryType;
@@ -71,7 +74,13 @@ public class Client extends JFrame {
 		}
 		
 		private void whileActive() throws IOException {
-			sendRequest(new Query(QueryType.find, ObjectType.cinema));
+			//sendRequest(new Query(QueryType.find, ObjectType.cinema));
+			
+			//Query addMovieRequest = new Query(QueryType.add, ObjectType.movie);
+			//addMovieRequest.movie = new Movie(7, "Hateful seven", "Action", 100, "Tarantino", false);
+			//sendRequest(addMovieRequest);
+			Query getCinemas = new Query(QueryType.find, ObjectType.cinema);
+			sendRequest(getCinemas);
 			
 			do {
 				try {
@@ -86,6 +95,11 @@ public class Client extends JFrame {
 		
 		private void handleResponce(Responce responce) {
 			System.out.print("Success");
+			showMessage(responce.statusString);
+			List<Cinema> myList = responce.cinemaArray;
+			for (Cinema cinema : myList) {
+				showMessage(Integer.toString(cinema.hallNumber));
+			}
 		}
 		
 		private void sendRequest(Query query) {
