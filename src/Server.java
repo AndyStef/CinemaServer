@@ -289,21 +289,14 @@ public class Server extends JFrame {
 	         String producer = resultSet.getString("Producer");
 	         int duration = resultSet.getInt("Duration");
 	         boolean isCurrentlyShowed = resultSet.getBoolean("IsCurrenlyShowed");
-	         
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Name: " + name);
-	         System.out.print(", Genre: " + genre);
-	         System.out.print(", Producer: " + producer );
-	         System.out.print(", Duration: " + duration);
-	         System.out.print(", IsCurrentlyShowed: " + isCurrentlyShowed + "\n");
-	         movieList.add(new Movie(id, name, genre, duration, producer, true));
+	
+	         movieList.add(new Movie(id, name, genre, duration, producer, isCurrentlyShowed));
 	      }
 	      resultSet.close();
 	      output.flush();
 	      
-	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.cinema);
-		  responce.statusString = "Cinemas was successful retrieved";
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.movie);
+		  responce.statusString = "Movies was successful retrieved";
 		  responce.movieArray = movieList;
 		  output.writeObject(responce);
 	}
@@ -326,21 +319,14 @@ public class Server extends JFrame {
 	         int cinemaId = resultSet.getInt("CinemaId");
 	         int movieId = resultSet.getInt("MovieId");
 	         Date time = resultSet.getDate("Time");
-	         
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Cost: " + cost);
-	         System.out.print(", Format: " + format);
-	         System.out.print(", CinemaId: " + cinemaId );
-	         System.out.print(", MovieId: " + movieId);
-	         System.out.print(", Time: " + time + "\n");
+
 	         sessionList.add(new Session(id, cost, format, movieId, cinemaId, time));
 	      }
 	      resultSet.close();
 	      output.flush();
 	      
-	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.cinema);
-		  responce.statusString = "Cinemas was successful retrieved";
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.session);
+		  responce.statusString = "Sessions was successful retrieved";
 		  responce.sessionArray = sessionList;
 		  output.writeObject(responce);
 	}
@@ -356,6 +342,7 @@ public class Server extends JFrame {
 	    sql += cinema.hallNumber + ");";
 	    
 	    stmt.execute(sql);
+	    output.flush();
 	    
 	    Responce responce = new Responce(ResponceType.status, ObjectType.cinema);
 	    responce.statusString = "Cinema addition was successful";
@@ -373,7 +360,8 @@ public class Server extends JFrame {
 	    sql += movie.producer + "',";
 	    sql += movie.isCurrentlyShown + ");";
 	 
-	    stmt.execute(sql);	  
+	    stmt.execute(sql);	 
+	    output.flush();
 	    
 	    Responce responce = new Responce(ResponceType.status, ObjectType.movie);
 	    responce.statusString = "Movie addition was successful";
@@ -392,6 +380,7 @@ public class Server extends JFrame {
 	    sql += session.movieId + ");";
 
 	    stmt.execute(sql);	
+	    output.flush();
 	    
 	    Responce responce = new Responce(ResponceType.status, ObjectType.session);
 	    responce.statusString = "Session addition was successful";
@@ -399,32 +388,47 @@ public class Server extends JFrame {
 	}
 	
 	//deleting objects
-	private void deleteCinema(Cinema cinema) throws SQLException {
+	private void deleteCinema(Cinema cinema) throws SQLException, IOException {
 		stmt = databaseConnection.createStatement();
 	    String sql;
 	    sql = "DELETE FROM cinemanetwork.cinema WHERE CinemaId = ";
 	    sql += cinema.objectId + ";";
 	    stmt.execute(sql);	
+	    output.flush();
+	    
+	    Responce responce = new Responce(ResponceType.status, ObjectType.cinema);
+	    responce.statusString = "Cinema delition was successful";
+	    output.writeObject(responce);
 	}
 	
-	private void deleteMovie(Movie movie) throws SQLException {
+	private void deleteMovie(Movie movie) throws SQLException, IOException {
 		stmt = databaseConnection.createStatement();
 	    String sql;
 	    sql = "DELETE FROM cinemanetwork.movie WHERE MovieId = ";
 	    sql += movie.objectId + ";";
 	    stmt.execute(sql);	
+	    output.flush();
+	    
+	    Responce responce = new Responce(ResponceType.status, ObjectType.movie);
+	    responce.statusString = "Movie delition was successful";
+	    output.writeObject(responce);
 	}
 	
-	private void deleteSession(Session session) throws SQLException {
+	private void deleteSession(Session session) throws SQLException, IOException {
 		stmt = databaseConnection.createStatement();
 	    String sql;
 	    sql = "DELETE FROM cinemanetwork.`session` WHERE SessionId = ";
 	    sql += session.objectId + ";";
 	    stmt.execute(sql);	
+	    output.flush();
+	    
+	    Responce responce = new Responce(ResponceType.status, ObjectType.session);
+	    responce.statusString = "Session delition was successful";
+	    output.writeObject(responce);
 	}
 	
 	//Specified selects
-	private void getCinemasWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException {
+	private void getCinemasWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException, IOException {
 		  ArrayList<Cinema> cinemaList = new ArrayList<Cinema>();
 		
 	      stmt = databaseConnection.createStatement();
@@ -441,17 +445,18 @@ public class Server extends JFrame {
 	         String address = resultSet.getString("Address");
 	         int hallNumber = resultSet.getInt("HallNumber");
 	         
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Name: " + name);
-	         System.out.print(", Address: " + address);
-	         System.out.print(", HallNumber: " + hallNumber + "\n");
 	         cinemaList.add(new Cinema(id, name, address, hallNumber));
 	      }
 	      resultSet.close();	
+	      output.flush();
+	      
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.cinema);
+		  responce.statusString = "Cinemas was successful retrieved";
+		  responce.cinemaArray = cinemaList;
+		  output.writeObject(responce);
 	}
 	
-	private void getMoviesWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException {
+	private void getMoviesWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException, IOException {
 		ArrayList<Movie> movieList = new ArrayList<Movie>();
 		
 	      stmt = databaseConnection.createStatement();
@@ -469,20 +474,19 @@ public class Server extends JFrame {
 	         String producer = resultSet.getString("Producer");
 	         int duration = resultSet.getInt("Duration");
 	         boolean isCurrentlyShowed = resultSet.getBoolean("IsCurrenlyShowed");
-	         
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Name: " + name);
-	         System.out.print(", Genre: " + genre);
-	         System.out.print(", Producer: " + producer );
-	         System.out.print(", Duration: " + duration);
-	         System.out.print(", IsCurrentlyShowed: " + isCurrentlyShowed + "\n");
+
 	         movieList.add(new Movie(id, name, genre, duration, producer, true));
 	      }
 	      resultSet.close();
+	      output.flush();
+	      
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.movie);
+		  responce.statusString = "Movies was successful retrieved";
+		  responce.movieArray = movieList;
+		  output.writeObject(responce);
 	}
 	
-	private void getSessionsWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException {
+	private void getSessionsWithFilter(String key, String comparisonValue, ComparisonType type) throws SQLException, IOException {
 		 ArrayList<Session> sessionList = new ArrayList<Session>();
 			
 	      stmt = databaseConnection.createStatement();
@@ -501,16 +505,15 @@ public class Server extends JFrame {
 	         int movieId = resultSet.getInt("MovieId");
 	         Date time = resultSet.getDate("Time");
 	         
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Cost: " + cost);
-	         System.out.print(", Format: " + format);
-	         System.out.print(", CinemaId: " + cinemaId );
-	         System.out.print(", MovieId: " + movieId);
-	         System.out.print(", Time: " + time + "\n");
 	         sessionList.add(new Session(id, cost, format, movieId, cinemaId, time));
 	      }
 	      resultSet.close();
+	      output.flush();
+	      
+	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.session);
+		  responce.statusString = "Movies was successful retrieved";
+		  responce.sessionArray = sessionList;
+		  output.writeObject(responce);
 		
 	}
 }
