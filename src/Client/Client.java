@@ -1,6 +1,8 @@
 package Client;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,9 +12,17 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 
 import Model.Cinema;
@@ -41,15 +51,16 @@ public class Client extends JFrame {
 	private List<Session> sessions;
 	
 	//UI elements 
-	
+	JFrame frame;
 	
 	//constructor
 	public Client(String host) {
 		super("Client Andy");
 		serverIP = host;
 		infoPanel = new JTextArea();
-		add(new JScrollPane(infoPanel), BorderLayout.CENTER);
-		setSize(300, 150);
+		infoPanel.setBounds(300,300,300,300);
+		add(new JScrollPane(infoPanel), BorderLayout.PAGE_END);
+		setSize(300, 300);
 		setVisible(true);
 	}
 	
@@ -87,17 +98,15 @@ public class Client extends JFrame {
 			do {
 				try {
 					incomingResponce = (Responce ) input.readObject();
-					//TODO: - implement callback for responce
 					handleResponce(incomingResponce);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-			} while (isActive);
+			} while (true);
 		}
 		
 		//what i have to do with responce
 		private void handleResponce(Responce responce) {
-			System.out.print("Success");
 			showMessage(responce.statusString);
 			List<Cinema> myList = responce.cinemaArray;
 			for (Cinema cinema : myList) {
@@ -113,6 +122,9 @@ public class Client extends JFrame {
 				case cinema:
 					cinemas = new ArrayList();
 					cinemas = responce.cinemaArray;
+					for (Cinema cinema : cinemas) {
+						System.out.print(cinema.objectId + "\t" + cinema.name + "\t" + cinema.address + "\t" + Integer.toString(cinema.hallNumber) + "\n");
+					}
 					break;
 				case movie:
 					movies = new ArrayList();
@@ -129,7 +141,7 @@ public class Client extends JFrame {
 		private void sendRequest(Query query) {
 			try {
 				output.writeObject(query);
-				output.flush();
+				//output.flush();
 				showMessage("Query - succeded");
 			} catch (IOException ioexception) {
 				showMessage("Query failed");

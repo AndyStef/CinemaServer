@@ -47,8 +47,6 @@ public class Server extends JFrame {
 	
 	private Query incomingQuery = null;
 	private Responce outcomeResponce;
-	private boolean isFree = true;
-	private boolean isActive;
 	
 	//constructor
 	public Server() {
@@ -64,7 +62,7 @@ public class Server extends JFrame {
 		try {
 			serverSocket = new ServerSocket(3111);
 			connectToDatabase();
-			getMovies();
+			//getMovies();
 
 			while(true) {
 				try {
@@ -79,9 +77,7 @@ public class Server extends JFrame {
 			}
 		} catch(IOException ioException ) {
 			ioException.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		} 
 	}
 	
 	//DataBase connection
@@ -93,7 +89,7 @@ public class Server extends JFrame {
 			e.printStackTrace();
 		}
 	      // Open a connection
-	      System.out.println("Connecting to database...");
+	      System.out.println("Connecting to database...\n");
 	      try {
 	    	  databaseConnection = DriverManager.getConnection(DB_URL,USER,PASS);
 	    	  showMessage("Connected to Database\n");
@@ -111,7 +107,7 @@ public class Server extends JFrame {
 	
 	//wait for connection 
 	private void waitForConnection() throws IOException {
-		showMessage("Waiting for someone to connect");
+		showMessage("Waiting for someone to connect\n");
 		connectionSocket = serverSocket.accept();
 		showMessage("Now connected to " + connectionSocket.getInetAddress().getHostAddress());
 	}
@@ -122,7 +118,6 @@ public class Server extends JFrame {
 			output.flush();
 			input = new ObjectInputStream(connectionSocket.getInputStream());
 			showMessage("\n Streams are setup \n");
-			isActive = true;
 		}
 		
 	//wait for incoming query and execute it 
@@ -131,14 +126,15 @@ public class Server extends JFrame {
 			try {
 				incomingQuery = (Query )input.readObject();
 				showMessage(incomingQuery);
-				executeQuery(incomingQuery);	
+				if (incomingQuery != null) {
+					executeQuery(incomingQuery);
+				}
+					
 			} catch (ClassNotFoundException | IOException | SQLException e) {
-				e.printStackTrace();
-			} finally {
-				isFree = true;
-			} 
+				//e.printStackTrace();
+			}  
 			
-		} while(isActive);
+		} while(true);
 	}
 	
 	private void showMessage(Query incomingQuery) {
@@ -223,14 +219,13 @@ public class Server extends JFrame {
 			output.close();
 			input.close();
 			connectionSocket.close();
+			//serverSocket.close();
 			disconnectFromDatabase();
 		} catch(IOException ioexception) {
 			ioexception.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		isActive = false;
 	}
 	
 	//show some info 
@@ -513,7 +508,6 @@ public class Server extends JFrame {
 	      Responce responce = new Responce(ResponceType.sendArray, ObjectType.session);
 		  responce.statusString = "Movies was successful retrieved";
 		  responce.sessionArray = sessionList;
-		  output.writeObject(responce);
-		
+		  output.writeObject(responce);	
 	}
 }
