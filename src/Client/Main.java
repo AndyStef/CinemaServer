@@ -33,8 +33,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
@@ -44,25 +49,25 @@ public class Main extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextField textField_3;
+	private JTextField cinemaIdTextField;
+	private JTextField cinemaNameTextField;
+	private JTextField cinemaAddressTextField;
+	private JTextField cinemaHallsTextField;
 	private JTextField textField_4;
 	private JTable table_1;
 	private JTable table_2;
-	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
-	private JTextField textField_8;
-	private JTextField textField_9;
+	private JTextField movieNumberTextField;
+	private JTextField movieNameTextField;
+	private JTextField movieGenreTextField;
+	private JTextField movieDurationTextField;
+	private JTextField movieProducerTextField;
 	private JTextField textField_10;
-	private JTextField textField_11;
-	private JTextField textField_12;
-	private JTextField textField_13;
-	private JTextField textField_14;
-	private JTextField textField_15;
-	private JTextField textField_16;
+	private JTextField sessionIdTextField;
+	private JTextField sessionCostTextField;
+	private JTextField sessionFormatTextField;
+	private JTextField sessionMovieIdTextField;
+	private JTextField sessionCinemaIdTextField;
+	private JTextField sessionTimeTextField;
 	private JTextField textField_17;
 	
 	
@@ -154,31 +159,67 @@ public class Main extends JFrame {
 		lblHallNumber.setBounds(502, 236, 94, 16);
 		panel.add(lblHallNumber);
 		
-		textField = new JTextField();
-		textField.setBounds(597, 152, 120, 26);
-		panel.add(textField);
-		textField.setColumns(10);
+		cinemaIdTextField = new JTextField();
+		cinemaIdTextField.setBounds(597, 152, 120, 26);
+		panel.add(cinemaIdTextField);
+		cinemaIdTextField.setColumns(10);
 		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(597, 175, 120, 26);
-		panel.add(textField_1);
+		cinemaNameTextField = new JTextField();
+		cinemaNameTextField.setColumns(10);
+		cinemaNameTextField.setBounds(597, 175, 120, 26);
+		panel.add(cinemaNameTextField);
 		
-		textField_2 = new JTextField();
-		textField_2.setColumns(10);
-		textField_2.setBounds(597, 203, 120, 26);
-		panel.add(textField_2);
+		cinemaAddressTextField = new JTextField();
+		cinemaAddressTextField.setColumns(10);
+		cinemaAddressTextField.setBounds(597, 203, 120, 26);
+		panel.add(cinemaAddressTextField);
 		
-		textField_3 = new JTextField();
-		textField_3.setColumns(10);
-		textField_3.setBounds(597, 231, 120, 26);
-		panel.add(textField_3);
+		cinemaHallsTextField = new JTextField();
+		cinemaHallsTextField.setColumns(10);
+		cinemaHallsTextField.setBounds(597, 231, 120, 26);
+		panel.add(cinemaHallsTextField);
 		
-		JButton button = new JButton("");
+		JButton addCinemaButton = new JButton("");
+		addCinemaButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String cinemaId = cinemaIdTextField.getText();
+				
+				if(cinemaId == "") {
+					showMessage("Введіть ,будь ласка, номер кінотеатру");
+					return;
+				}
+				
+				String cinemaName = cinemaNameTextField.getText();
+				
+				if (cinemaName == "") {
+					showMessage("Введіть ,будь ласка, назву кінотеатру");
+					return;
+				}
+				
+				String cinemaAddress = cinemaAddressTextField.getText();
+				
+				if (cinemaAddress == "") {
+					showMessage("Введіть ,будь ласка, адресу кінотеатру");
+					return;
+				}
+				String cinemaHalls = cinemaHallsTextField.getText();
+				
+				if (cinemaHalls == "") {
+					showMessage("Введіть ,будь ласка, кількість залів у кінотеатрі");
+					return;
+				}
+				
+				Cinema cinema = new Cinema(Integer.parseInt(cinemaId), cinemaName, cinemaAddress, Integer.parseInt(cinemaHalls));
+				Query query = new Query(QueryType.add, ObjectType.cinema);
+				query.cinema = cinema;
+				sendRequest(query);
+				
+			}
+		});
 		Image img2 = new ImageIcon(this.getClass().getResource("/movieAdd.png")).getImage();
-		button.setIcon(new ImageIcon(img2));
-		button.setBounds(731, 195, 35, 29);
-		panel.add(button);
+		addCinemaButton.setIcon(new ImageIcon(img2));
+		addCinemaButton.setBounds(731, 195, 35, 29);
+		panel.add(addCinemaButton);
 		
 		JButton refreshCinemaButton = new JButton("Оновити список");
 		refreshCinemaButton.addActionListener(new ActionListener() {
@@ -279,45 +320,64 @@ public class Main extends JFrame {
 		label_5.setBounds(515, 299, 90, 16);
 		panel_1.add(label_5);
 		
-		textField_5 = new JTextField();
-		textField_5.setBounds(601, 152, 122, 26);
-		panel_1.add(textField_5);
-		textField_5.setColumns(10);
+		movieNumberTextField = new JTextField();
+		movieNumberTextField.setBounds(601, 152, 122, 26);
+		panel_1.add(movieNumberTextField);
+		movieNumberTextField.setColumns(10);
 		
-		textField_6 = new JTextField();
-		textField_6.setColumns(10);
-		textField_6.setBounds(601, 182, 122, 26);
-		panel_1.add(textField_6);
+		movieNameTextField = new JTextField();
+		movieNameTextField.setColumns(10);
+		movieNameTextField.setBounds(601, 182, 122, 26);
+		panel_1.add(movieNameTextField);
 		
-		textField_7 = new JTextField();
-		textField_7.setColumns(10);
-		textField_7.setBounds(601, 210, 122, 26);
-		panel_1.add(textField_7);
+		movieGenreTextField = new JTextField();
+		movieGenreTextField.setColumns(10);
+		movieGenreTextField.setBounds(601, 210, 122, 26);
+		panel_1.add(movieGenreTextField);
 		
-		textField_8 = new JTextField();
-		textField_8.setColumns(10);
-		textField_8.setBounds(601, 238, 122, 26);
-		panel_1.add(textField_8);
+		movieDurationTextField = new JTextField();
+		movieDurationTextField.setColumns(10);
+		movieDurationTextField.setBounds(601, 238, 122, 26);
+		panel_1.add(movieDurationTextField);
 		
-		textField_9 = new JTextField();
-		textField_9.setColumns(10);
-		textField_9.setBounds(601, 266, 122, 26);
-		panel_1.add(textField_9);
+		movieProducerTextField = new JTextField();
+		movieProducerTextField.setColumns(10);
+		movieProducerTextField.setBounds(601, 266, 122, 26);
+		panel_1.add(movieProducerTextField);
 		
-		JCheckBox checkBox = new JCheckBox("");
-		checkBox.setBounds(636, 299, 70, 23);
-		panel_1.add(checkBox);
+		JCheckBox movieActualityCheckbox = new JCheckBox("");
+		movieActualityCheckbox.setBounds(636, 299, 70, 23);
+		panel_1.add(movieActualityCheckbox);
 		
-		JButton button_3 = new JButton("");
-		button_3.setIcon(new ImageIcon(img2));
+		JButton addMovieButton = new JButton("");
+		addMovieButton.setIcon(new ImageIcon(img2));
 		
 		
-		button_3.addActionListener(new ActionListener() {
+		addMovieButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				String movieId = movieNumberTextField.getText();
+					
+				String movieName = movieNameTextField.getText();
+				
+				String movieGenre = movieGenreTextField.getText();
+				
+				String movieDuration = movieDurationTextField.getText();
+				
+				String movieProducer = movieProducerTextField.getText();
+				
+				boolean movieActuality = movieActualityCheckbox.isSelected();
+	
+				Movie movie = new Movie(Integer.parseInt(movieId), movieName, movieGenre, Integer.parseInt(movieDuration), movieProducer, movieActuality);
+				
+				Query query = new Query(QueryType.add, ObjectType.movie);
+				query.movie = movie;
+				sendRequest(query);
+				
 			}
 		});
-		button_3.setBounds(725, 215, 35, 29);
-		panel_1.add(button_3);
+		addMovieButton.setBounds(725, 215, 35, 29);
+		panel_1.add(addMovieButton);
 		
 		JButton refreshMovieButton = new JButton("Оновити список");
 		refreshMovieButton.addActionListener(new ActionListener() {
@@ -410,35 +470,35 @@ public class Main extends JFrame {
 		label_11.setBounds(538, 286, 61, 16);
 		panel_2.add(label_11);
 		
-		textField_11 = new JTextField();
-		textField_11.setBounds(630, 146, 130, 26);
-		panel_2.add(textField_11);
-		textField_11.setColumns(10);
+		sessionIdTextField = new JTextField();
+		sessionIdTextField.setBounds(630, 146, 130, 26);
+		panel_2.add(sessionIdTextField);
+		sessionIdTextField.setColumns(10);
 		
-		textField_12 = new JTextField();
-		textField_12.setColumns(10);
-		textField_12.setBounds(630, 174, 130, 26);
-		panel_2.add(textField_12);
+		sessionCostTextField = new JTextField();
+		sessionCostTextField.setColumns(10);
+		sessionCostTextField.setBounds(630, 174, 130, 26);
+		panel_2.add(sessionCostTextField);
 		
-		textField_13 = new JTextField();
-		textField_13.setColumns(10);
-		textField_13.setBounds(630, 202, 130, 26);
-		panel_2.add(textField_13);
+		sessionFormatTextField = new JTextField();
+		sessionFormatTextField.setColumns(10);
+		sessionFormatTextField.setBounds(630, 202, 130, 26);
+		panel_2.add(sessionFormatTextField);
 		
-		textField_14 = new JTextField();
-		textField_14.setColumns(10);
-		textField_14.setBounds(630, 230, 130, 26);
-		panel_2.add(textField_14);
+		sessionMovieIdTextField = new JTextField();
+		sessionMovieIdTextField.setColumns(10);
+		sessionMovieIdTextField.setBounds(630, 230, 130, 26);
+		panel_2.add(sessionMovieIdTextField);
 		
-		textField_15 = new JTextField();
-		textField_15.setColumns(10);
-		textField_15.setBounds(630, 253, 130, 26);
-		panel_2.add(textField_15);
+		sessionCinemaIdTextField = new JTextField();
+		sessionCinemaIdTextField.setColumns(10);
+		sessionCinemaIdTextField.setBounds(630, 253, 130, 26);
+		panel_2.add(sessionCinemaIdTextField);
 		
-		textField_16 = new JTextField();
-		textField_16.setColumns(10);
-		textField_16.setBounds(630, 281, 130, 26);
-		panel_2.add(textField_16);
+		sessionTimeTextField = new JTextField();
+		sessionTimeTextField.setColumns(10);
+		sessionTimeTextField.setBounds(630, 281, 130, 26);
+		panel_2.add(sessionTimeTextField);
 		
 		JButton refreshSessionButton = new JButton("Оновити список");
 		refreshSessionButton.addActionListener(new ActionListener() {
@@ -458,10 +518,46 @@ public class Main extends JFrame {
 		button_9.setBounds(527, 396, 233, 29);
 		panel_2.add(button_9);
 		
-		JButton button_10 = new JButton("");
-		button_10.setIcon(new ImageIcon(img2));
-		button_10.setBounds(755, 217, 35, 29);
-		panel_2.add(button_10);
+		JButton addSessionButton = new JButton("");
+		addSessionButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+				String sessionId = sessionIdTextField.getText();
+				
+				String sessionCost = sessionCostTextField.getText();
+				
+				String sessionFormat = sessionFormatTextField.getText();
+				
+				String sessionMovieId = sessionMovieIdTextField.getText();
+				
+				String sessionCinemaId = sessionCinemaIdTextField.getText();
+				
+				String sessionTime = sessionTimeTextField.getText();
+	
+				DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+				Session session = null;
+				try {
+					session = new Session(Integer.parseInt(sessionId), Integer.parseInt(sessionCost), sessionFormat, Integer.parseInt(sessionMovieId), Integer.parseInt(sessionCinemaId), (java.sql.Date) format.parse(sessionTime));
+				} catch (NumberFormatException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			
+				
+				Query query = new Query(QueryType.add, ObjectType.session);
+				query.session = session;
+				sendRequest(query);
+					
+			}
+		});
+		addSessionButton.setIcon(new ImageIcon(img2));
+		addSessionButton.setBounds(755, 217, 35, 29);
+		panel_2.add(addSessionButton);
 		
 		JComboBox comboBox_4 = new JComboBox();
 		comboBox_4.setModel(new DefaultComboBoxModel(new String[] {"Ціна"}));
