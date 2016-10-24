@@ -231,13 +231,19 @@ public class Main extends JFrame {
 		refreshCinemaButton.setBounds(502, 276, 233, 29);
 		panel.add(refreshCinemaButton);
 		
-		JButton btnNewButton = new JButton("Видалити обраний кінотеатр");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton deleteCinemaButton = new JButton("Видалити обраний кінотеатр");
+		deleteCinemaButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				int index = table.getSelectedRow();
+				Cinema toDelete = cinemas.get(index);
+				Query query = new Query(QueryType.delete, ObjectType.cinema);
+				query.cinema = toDelete;
+				sendRequest(query);
 			}
 		});
-		btnNewButton.setBounds(502, 317, 233, 29);
-		panel.add(btnNewButton);
+		deleteCinemaButton.setBounds(502, 317, 233, 29);
+		panel.add(deleteCinemaButton);
 		
 		JButton button_2 = new JButton("Фільтрувати");
 		button_2.setBounds(502, 356, 233, 29);
@@ -389,9 +395,21 @@ public class Main extends JFrame {
 		refreshMovieButton.setBounds(515, 327, 233, 29);
 		panel_1.add(refreshMovieButton);
 		
-		JButton button_5 = new JButton("Видалити обраний фільм");
-		button_5.setBounds(515, 368, 233, 29);
-		panel_1.add(button_5);
+		JButton deleteMovie = new JButton("Видалити обраний фільм");
+		deleteMovie.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				int index = table_1.getSelectedRow();
+				Movie toDelete = movies.get(index);
+				Query query = new Query(QueryType.delete, ObjectType.movie);
+				query.movie = toDelete;
+				sendRequest(query);
+		
+			}
+		});
+		deleteMovie.setBounds(515, 368, 233, 29);
+		panel_1.add(deleteMovie);
 		
 		JButton button_6 = new JButton("Фільтрувати");
 		button_6.setBounds(515, 407, 233, 29);
@@ -510,9 +528,20 @@ public class Main extends JFrame {
 		refreshSessionButton.setBounds(527, 316, 233, 29);
 		panel_2.add(refreshSessionButton);
 		
-		JButton button_8 = new JButton("Видалити обраний сеанс");
-		button_8.setBounds(527, 357, 233, 29);
-		panel_2.add(button_8);
+		JButton deleteSessionButton = new JButton("Видалити обраний сеанс");
+		deleteSessionButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int index = table_2.getSelectedRow();
+				Session toDelete = sessions.get(index);
+				Query query = new Query(QueryType.delete, ObjectType.session);
+				query.session = toDelete;
+				sendRequest(query);
+				
+			}
+		});
+		deleteSessionButton.setBounds(527, 357, 233, 29);
+		panel_2.add(deleteSessionButton);
 		
 		JButton button_9 = new JButton("Фільтрувати");
 		button_9.setBounds(527, 396, 233, 29);
