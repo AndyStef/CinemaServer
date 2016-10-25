@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Model.Cinema;
+import Model.ComparisonType;
 import Model.Movie;
 import Model.ObjectType;
 import Model.Query;
@@ -69,7 +70,12 @@ public class Main extends JFrame {
 	private JTextField sessionCinemaIdTextField;
 	private JTextField sessionTimeTextField;
 	private JTextField textField_17;
-	
+	JComboBox comboBox_1;
+	JComboBox comboBox;
+	JComboBox comboBox_2;
+	JComboBox comboBox_3;
+	JComboBox comboBox_4;
+	JComboBox comboBox_5;
 	
 	//Variables 
 	private ObjectOutputStream output;
@@ -245,16 +251,43 @@ public class Main extends JFrame {
 		deleteCinemaButton.setBounds(502, 317, 233, 29);
 		panel.add(deleteCinemaButton);
 		
-		JButton button_2 = new JButton("Фільтрувати");
-		button_2.setBounds(502, 356, 233, 29);
-		panel.add(button_2);
+		JButton filterCinemasButton = new JButton("Фільтрувати");
+		filterCinemasButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Query query = new Query(QueryType.findWithFilter, ObjectType.cinema);
+				
+				
+				switch (comboBox_1.getSelectedIndex()) {
+				case 2:
+					query.comparisonType = ComparisonType.lower;
+					break;
+				case 1:
+					query.comparisonType = ComparisonType.equals;
+					break;
+				case 0:
+					query.comparisonType = ComparisonType.greater;
+					break;
+				default:
+					break;
+				}
+				
+				query.key = "HallNumber";
+				query.comparisonValue = textField_4.getText();
+				
+				sendRequest(query);
+				
+			}
+		});
+		filterCinemasButton.setBounds(502, 356, 233, 29);
+		panel.add(filterCinemasButton);
 		
-		JComboBox comboBox = new JComboBox();
+		comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Кількість залів"}));
 		comboBox.setBounds(502, 392, 233, 27);
 		panel.add(comboBox);
 		
-		JComboBox comboBox_1 = new JComboBox();
+		comboBox_1 = new JComboBox();
 		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {">", "=", "<"}));
 		comboBox_1.setBounds(502, 431, 61, 27);
 		panel.add(comboBox_1);
@@ -412,15 +445,51 @@ public class Main extends JFrame {
 		panel_1.add(deleteMovie);
 		
 		JButton button_6 = new JButton("Фільтрувати");
+		button_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Query query = new Query(QueryType.findWithFilter, ObjectType.movie);
+				
+				
+				switch (comboBox_3.getSelectedIndex()) {
+				case 2:
+					query.comparisonType = ComparisonType.lower;
+					break;
+				case 1:
+					query.comparisonType = ComparisonType.greater;
+					break;
+				case 0:
+					query.comparisonType = ComparisonType.equals;
+					break;
+				default:
+					break;
+				}
+				
+				switch(comboBox_2.getSelectedIndex()) {
+				case 0:
+					query.key = "Genre";
+					break;
+				case 1:
+					query.key = "Duration";
+					break;
+				}
+				
+				query.comparisonValue = textField_10.getText();
+				
+				sendRequest(query);
+				System.out.print("ssssssssss");
+				
+			}
+		});
 		button_6.setBounds(515, 407, 233, 29);
 		panel_1.add(button_6);
 		
-		JComboBox comboBox_2 = new JComboBox();
+		comboBox_2 = new JComboBox();
 		comboBox_2.setModel(new DefaultComboBoxModel(new String[] {"Жанр", "Тривалість"}));
 		comboBox_2.setBounds(515, 439, 233, 27);
 		panel_1.add(comboBox_2);
 		
-		JComboBox comboBox_3 = new JComboBox();
+		comboBox_3 = new JComboBox();
 		comboBox_3.setModel(new DefaultComboBoxModel(new String[] {"=", ">", "<"}));
 		comboBox_3.setBounds(515, 469, 61, 27);
 		panel_1.add(comboBox_3);
@@ -544,6 +613,34 @@ public class Main extends JFrame {
 		panel_2.add(deleteSessionButton);
 		
 		JButton button_9 = new JButton("Фільтрувати");
+		button_9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Query query = new Query(QueryType.findWithFilter, ObjectType.session);
+				
+				
+				switch (comboBox_5.getSelectedIndex()) {
+				case 2:
+					query.comparisonType = ComparisonType.lower;
+					break;
+				case 1:
+					query.comparisonType = ComparisonType.equals;
+					break;
+				case 0:
+					query.comparisonType = ComparisonType.greater;
+					break;
+				default:
+					break;
+				}
+				
+				query.key = "Cost";
+				query.comparisonValue = textField_17.getText();
+				
+				sendRequest(query);
+				
+				
+			}
+		});
 		button_9.setBounds(527, 396, 233, 29);
 		panel_2.add(button_9);
 		
@@ -588,12 +685,12 @@ public class Main extends JFrame {
 		addSessionButton.setBounds(755, 217, 35, 29);
 		panel_2.add(addSessionButton);
 		
-		JComboBox comboBox_4 = new JComboBox();
+		comboBox_4 = new JComboBox();
 		comboBox_4.setModel(new DefaultComboBoxModel(new String[] {"Ціна"}));
 		comboBox_4.setBounds(538, 431, 222, 27);
 		panel_2.add(comboBox_4);
 		
-		JComboBox comboBox_5 = new JComboBox();
+		comboBox_5 = new JComboBox();
 		comboBox_5.setModel(new DefaultComboBoxModel(new String[] {">", "=", "<"}));
 		comboBox_5.setBounds(538, 469, 61, 27);
 		panel_2.add(comboBox_5);
