@@ -142,12 +142,15 @@ public class Main extends JFrame {
 	        
 		table = new JTable(model);
 		scrollPane.setViewportView(table);
+		Image img = new ImageIcon(this.getClass().getResource("/cinema.png")).getImage();
+		
+		JScrollPane scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBounds(595, 6, 122, 134);
+		panel.add(scrollPane_3);
 		
 		JLabel label = new JLabel("");
-		Image img = new ImageIcon(this.getClass().getResource("/cinema.png")).getImage();
+		scrollPane_3.setViewportView(label);
 		label.setIcon(new ImageIcon(img));
-		label.setBounds(595, 6, 122, 134);
-		panel.add(label);
 		
 		JLabel lblId = new JLabel("Номер");
 		lblId.setBounds(502, 152, 61, 16);
@@ -190,30 +193,32 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String cinemaId = cinemaIdTextField.getText();
 				
-				if(cinemaId == "") {
+				if(cinemaId.isEmpty()) {
 					showMessage("Введіть ,будь ласка, номер кінотеатру");
 					return;
 				}
 				
 				String cinemaName = cinemaNameTextField.getText();
 				
-				if (cinemaName == "") {
+				if (cinemaName.isEmpty()) {
 					showMessage("Введіть ,будь ласка, назву кінотеатру");
 					return;
 				}
 				
 				String cinemaAddress = cinemaAddressTextField.getText();
 				
-				if (cinemaAddress == "") {
+				if (cinemaAddress.isEmpty()) {
 					showMessage("Введіть ,будь ласка, адресу кінотеатру");
 					return;
 				}
 				String cinemaHalls = cinemaHallsTextField.getText();
 				
-				if (cinemaHalls == "") {
+				if (cinemaHalls.isEmpty()) {
 					showMessage("Введіть ,будь ласка, кількість залів у кінотеатрі");
 					return;
 				}
+				
+				//if (Integer.parseInt(cinemaHalls))
 				
 				Cinema cinema = new Cinema(Integer.parseInt(cinemaId), cinemaName, cinemaAddress, Integer.parseInt(cinemaHalls));
 				Query query = new Query(QueryType.add, ObjectType.cinema);
